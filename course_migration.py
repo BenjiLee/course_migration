@@ -450,6 +450,11 @@ class Migrator(object):
                 edx_video_id = self.parse_edx_video_id_from_url(source)
                 edx_video_id_found = True
 
+        #Assuming edx_video_id is 20, if it is not, discard it.
+        if edx_video_id_found:
+            if len(edx_video_id) != 20:
+                edx_video_id_found = False
+
         #Looking for edx_video_id via youtube_id/client_id
         # if self.course_id.startswith(('MITx', 'DelftX', 'LouvainX/Louv1.1x')) \
         if edx_video_id_found is False:
@@ -471,6 +476,10 @@ class Migrator(object):
                     self.find_edx_video_id_from_ids(
                         client_id=source.replace('_', '-')
                     )
+                #If all fails, use the studio edx_video_id
+                if studio_edx_video_id:
+                    edx_video_id = studio_edx_video_id
+                    edx_video_id_found = True
                 if edx_video_id_found is False:
                     raise EdxVideoIdError(source)
 
@@ -520,7 +529,7 @@ class Migrator(object):
                 [video["profile"] for video in videos.get("encoded_videos", [])]
             if 5 != len(set(profiles)):
                 self.log.error("{}: Only {} unique profiles found for {}".
-                               format(self.course_id, set(profiles), edx_video_id))
+                               format(self.course_id, profiles, edx_video_id))
         elif response.status_code == 403:
             self.log.error("{}:Permissions error for VAL access for {}".
                            format(self.course_id, edx_video_id))
