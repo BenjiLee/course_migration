@@ -2,6 +2,8 @@ import argparse
 import getpass
 import requests
 import logging
+import os
+import time
 
 
 class MobileApi(object):
@@ -12,7 +14,6 @@ class MobileApi(object):
             format(self.url)
         self.sess = requests.Session()
         self.log = logging.getLogger('mobile')
-        self.log.info("\n"+((70*"=")+"\n")*3)
         self.videos = []
 
     def get_csrf(self, url):
@@ -51,17 +52,16 @@ class MobileApi(object):
             else:
                 print course.rstrip("\n") + ": "+str(thing[1])
 
-    @staticmethod
-    def process_video_data(json_data):
+    def process_video_data(self, json_data):
         for video in json_data:
             if video['summary']['size'] == 0:
-                print "\nMissing size: {}".format(video)
+                self.log_and_print("\nMissing size: {}".format(video))
             if video['summary']['transcripts'] == "{}":
-                print "\nMissing transcript: {}".format(video)
+                self.log_and_print("\nMissing transcript: {}".format(video))
 
     def get_course_data(self, course):
         course_url = self.mobile_api_url + "/" + course
-        print "\n"+"!"*40+course+"!"*40+"\n"
+        self.log_and_print("\n"+"!"*40+course+"!"*40+"\n")
         response = self.sess.get(course_url)
         if response.status_code == 200:
             result = response.json()
@@ -69,6 +69,25 @@ class MobileApi(object):
         else:
             return False, response.status_code
 
+    def log_and_print(self, message):
+        """
+        Logs and prints a message. Reduces spaces from repeated strings
+
+        Attributes:
+            message (str): The message
+        """
+        #TODO handle other logtypes. Not important
+        self.log.error(message)
+        print message
+
+def tag_time():
+    """
+    Get's date and time for filename
+
+    Returns:
+        (str): Date and time
+    """
+    return time.strftime("%Y-%m-%d_%I.%M%p_")
 
 def main():
     parser = argparse.ArgumentParser()
@@ -77,6 +96,18 @@ def main():
     parser.add_argument('-e', '--email', help='Studio email address', default='')
 
     args = parser.parse_args()
+
+    log_folder = "post_import_log"
+
+    if not os.path.exists(log_folder):
+        os.makedirs(log_folder)
+    log_filename = log_folder+"/"+tag_time()+".txt"
+
+    logging.basicConfig(
+        filename=log_filename,
+        level=logging.DEBUG,
+        format='%(asctime)s %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S')
 
     if not (args.course or args.courses):
         print "need courses"
