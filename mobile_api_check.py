@@ -51,13 +51,13 @@ class MobileApi(object):
             else:
                 print course.rstrip("\n") + ": "+str(thing[1])
 
-    def process_video_data(self, json_data):
+    @staticmethod
+    def process_video_data(json_data):
         for video in json_data:
             if video['summary']['size'] == 0:
                 print "\nMissing size: {}".format(video)
             if video['summary']['transcripts'] == "{}":
                 print "\nMissing transcript: {}".format(video)
-
 
     def get_course_data(self, course):
         course_url = self.mobile_api_url + "/" + course
@@ -68,9 +68,6 @@ class MobileApi(object):
             return True, result
         else:
             return False, response.status_code
-
-
-
 
 
 def main():
@@ -91,10 +88,6 @@ def main():
 
     courses = args.courses or [args.course]
     mobile.check_course(courses)
-
-
-
-
 
 if __name__ == "__main__":
     main()
