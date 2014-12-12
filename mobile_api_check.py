@@ -55,7 +55,8 @@ class MobileApi(object):
     def process_video_data(self, json_data):
         for video in json_data:
             if video['summary']['size'] == 0:
-                self.log_and_print("\nMissing size: {}".format(video))
+                if video['summary']['video_url'] != '':
+                    self.log_and_print("\nMissing size: {}".format(video))
             if video['summary']['transcripts'] == "{}":
                 self.log_and_print("\nMissing transcript: {}".format(video))
 
