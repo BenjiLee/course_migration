@@ -174,11 +174,14 @@ class Migrator(object):
 
         print 'Login successful'
 
-    def import_tar_to_studio(self, file_path):
+    def import_tar_to_studio(self, file_path=None, split_course_id=None):
         """
         Uploads given tar (file_path) to studio.
         """
-        course_id = self.get_course_id_from_tar(file_path)
+        if split_course_id:
+            course_id = split_course_id
+        else:
+            course_id = self.get_course_id_from_tar(file_path)
         url = '{}/import/{}'.format(self.studio_url, course_id)
         self.log.info(
             'Importing {} to {} from {}'.format(course_id, url, file_path)
@@ -688,6 +691,10 @@ def main():
     To skip saving imports use -ni
     To skip saving exports use -ne
 
+    To import a single split course e.g. course+v1:edx/cs123/course use -sc
+    A split course will use the given course_id to both export and import the
+    course. Only a single course can be done at a time.
+
     Use --help to see all options.
     '''.format(cmd=sys.argv[0])
     parser.add_argument('-c', '--course', help='Course', default='')
@@ -699,11 +706,13 @@ def main():
     parser.add_argument('-u', '--upload', help='Upload to studio', default=False, action='store_true')
     parser.add_argument('-ne', '--noexports', help='Disable save export files', default=True, action='store_false')
     parser.add_argument('-ni', '--noimports', help='Disable save import files', default=True, action='store_false')
+    parser.add_argument('-sc', '--splitcourse', help='For split courses', default='')
+
 
 
     args = parser.parse_args()
 
-    if not (args.export or args.course or args.courses or args.upload):
+    if not (args.export or args.course or args.courses or args.upload or args.splitcourse):
         parser.print_usage()
         return -1
     #setup folders
@@ -744,6 +753,8 @@ def main():
         elif args.courses or args.course:
             courses = args.courses or [args.course]
             migration.convert_courses_from_studio(courses)
+        elif args.splitcourse:
+            migration.convert_courses_from_studio([args.splitcourse])
 
         possible_issues = open(log_filename, 'r')
 
@@ -760,9 +771,14 @@ def main():
             upload_message = "*"*20+"Starting uploads"+"*"*20
             logging.info(upload_message)
             print upload_message
-            for filename in os.listdir(to_import_folder):
-                file_path = "%s/%s" % (to_import_folder, filename)
-                migration.import_tar_to_studio(file_path)
+            if args.splitcourse:
+                for filename in os.listdir(to_import_folder):
+                    file_path = "%s/%s" % (to_import_folder, filename)
+                    migration.import_tar_to_studio(file_path=file_path, split_course_id=args.splitcourse)
+            else:
+                for filename in os.listdir(to_import_folder):
+                    file_path = "%s/%s" % (to_import_folder, filename)
+                    migration.import_tar_to_studio(file_path=file_path)
 
     return
 
