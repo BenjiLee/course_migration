@@ -598,7 +598,7 @@ class Migrator(object):
                 for enc in video['encoded_videos']:
                     if enc['profile'] == 'youtube' and enc['url'].strip() == youtube_id:
                         return True, video['edx_video_id']
-            if video['client_video_id'] == client_id:
+            if video['client_video_id'] == client_id and client_id:
                 return True, video['edx_video_id']
         return False, ''
 
