@@ -60,6 +60,13 @@ class MobileApi(object):
             if video['summary']['transcripts'] == "{}":
                 self.log_and_print("\nMissing transcript: {}".format(video))
 
+            self.check_transcript_url(video['summary']['transcripts']['en'], video)
+
+    def check_transcript_url(self, transcript_url, video):
+        response = self.sess.get(transcript_url)
+        if response.status_code == 404:
+            self.log_and_print("\nMissing transcript: {}".format(video))
+
     def get_course_data(self, course):
         course_url = self.mobile_api_url + "/" + course
         self.log_and_print("\n"+"!"*40+course+"!"*40+"\n")
