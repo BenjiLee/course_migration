@@ -701,7 +701,7 @@ def main():
     parser.add_argument('-l', '--courses', type=argparse.FileType('rb'), default=None)
     parser.add_argument('-f', '--export', help='Path to export directory', default='')
     parser.add_argument('-e', '--email', help='Studio email address', default='')
-    parser.add_argument('-s', '--studio', help='Studio URL', default='http://studio.mobile3.m.sandbox.edx.org')
+    parser.add_argument('-s', '--studio', help='Studio URL', default='https://studio.edx.org')
     parser.add_argument('-v', '--verbose', help='verbose', default=False, action='store_true')
     parser.add_argument('-u', '--upload', help='Upload to studio', default=False, action='store_true')
     parser.add_argument('-ne', '--noexports', help='Disable save export files', default=True, action='store_false')
