@@ -330,11 +330,12 @@ class Migrator(object):
             old_data.getnames()[0],
             'course.xml')).read()
         course_xml = fromstring(course_xml)
-        self.course_id = '%s/%s/%s' % (
-            course_xml.get('org'),
-            course_xml.get('course'),
-            course_xml.get('url_name')
-        )
+        if not self.course_id:
+            self.course_id = '%s/%s/%s' % (
+                course_xml.get('org'),
+                course_xml.get('course'),
+                course_xml.get('url_name')
+            )
 
         try:
             self.course_videos = self.get_course_videos_from_val()
