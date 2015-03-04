@@ -456,7 +456,7 @@ class Migrator(object):
 
         #Assuming edx_video_id is 20, if it is not, discard it.
         if edx_video_id_found:
-            if len(edx_video_id) != 20:
+            if len(edx_video_id) != 20 or "." in edx_video_id:
                 edx_video_id_found = False
 
         #Looking for edx_video_id via youtube_id/client_id
