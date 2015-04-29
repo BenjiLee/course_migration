@@ -57,10 +57,14 @@ class MobileApi(object):
             if video['summary']['size'] == 0:
                 if video['summary']['video_url'] != '':
                     self.log_and_print("\nMissing size: {}".format(video))
+
             if video['summary']['transcripts'] == "{}":
                 self.log_and_print("\nMissing transcript: {}".format(video))
-
-            self.check_transcript_url(video['summary']['transcripts']['en'], video)
+            else:
+                try:
+                    self.check_transcript_url(video['summary']['transcripts']['en'], video)
+                except KeyError:
+                    self.log_and_print("\nMissing english: {}".format(video))
 
     def check_transcript_url(self, transcript_url, video):
         response = self.sess.get(transcript_url)
@@ -88,6 +92,7 @@ class MobileApi(object):
         self.log.error(message)
         print message
 
+
 def tag_time():
     """
     Get's date and time for filename
@@ -96,6 +101,7 @@ def tag_time():
         (str): Date and time
     """
     return time.strftime("%Y-%m-%d_%I.%M%p_")
+
 
 def main():
     parser = argparse.ArgumentParser()
