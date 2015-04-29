@@ -15,6 +15,7 @@ class MobileApi(object):
         self.sess = requests.Session()
         self.log = logging.getLogger('mobile')
         self.videos = []
+        self.items = 0
 
     def get_csrf(self, url):
         """
@@ -51,6 +52,8 @@ class MobileApi(object):
                 self.process_video_data(thing[1])
             else:
                 print course.rstrip("\n") + ": "+str(thing[1])
+            self.log_and_print("\nFound {} issues for course: ".format(self.items, course))
+            self.items = 0
 
     def process_video_data(self, json_data):
         for video in json_data:
@@ -73,7 +76,8 @@ class MobileApi(object):
 
     def get_course_data(self, course):
         course_url = self.mobile_api_url + "/" + course
-        self.log_and_print("\nMobile api check for "+course)
+        self.log_and_print("\nMobile api check for: {}".format(course))
+        self.items = 0
         response = self.sess.get(course_url)
         if response.status_code == 200:
             result = response.json()
@@ -91,6 +95,7 @@ class MobileApi(object):
         #TODO handle other logtypes. Not important
         self.log.error(message)
         print message
+        self.items += 1
 
 
 def tag_time():
