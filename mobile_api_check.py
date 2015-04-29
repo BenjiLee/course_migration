@@ -73,7 +73,7 @@ class MobileApi(object):
 
     def get_course_data(self, course):
         course_url = self.mobile_api_url + "/" + course
-        self.log_and_print("\n"+"!"*40+course+"!"*40+"\n")
+        self.log_and_print("\nMobile api check for "+course)
         response = self.sess.get(course_url)
         if response.status_code == 200:
             result = response.json()
