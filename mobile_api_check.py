@@ -8,7 +8,7 @@ import time
 
 class MobileApi(object):
 
-    def __init__(self):
+    def __init__(self, language):
         self.url = "https://courses.edx.org"
         self.mobile_api_url = '{}/api/mobile/v0.5/video_outlines/courses'.\
             format(self.url)
@@ -16,6 +16,7 @@ class MobileApi(object):
         self.log = logging.getLogger('mobile')
         self.videos = []
         self.items = 0
+        self.language = language
 
     def get_csrf(self, url):
         """
@@ -62,17 +63,17 @@ class MobileApi(object):
                     self.log_and_print("\nMissing size: {}".format(video))
 
             if video['summary']['transcripts'] == "{}":
-                self.log_and_print("\nMissing transcript: {}".format(video))
+                self.log_and_print("\nMissing transcript url: {}".format(video))
             else:
                 try:
-                    self.check_transcript_url(video['summary']['transcripts']['en'], video)
+                    self.check_transcript_url(video['summary']['transcripts'][self.language], video)
                 except KeyError:
-                    self.log_and_print("\nMissing english: {}".format(video))
+                    self.log_and_print("\nMissing {} transcript: {}".format(self.language, video))
 
     def check_transcript_url(self, transcript_url, video):
         response = self.sess.get(transcript_url)
         if response.status_code == 404:
-            self.log_and_print("\nMissing transcript: {}".format(video))
+            self.log_and_print("\n404 transcript url: {}".format(video))
 
     def get_course_data(self, course):
         course_url = self.mobile_api_url + "/" + course
@@ -113,6 +114,7 @@ def main():
     parser.add_argument('-c', '--course', help='Course', default='')
     parser.add_argument('-l', '--courses', type=argparse.FileType('rb'), default=None)
     parser.add_argument('-e', '--email', help='Studio email address', default='')
+    parser.add_argument('-d', '--language', help='default transcript language', default='en')
 
     args = parser.parse_args()
 
@@ -131,7 +133,7 @@ def main():
     if not (args.course or args.courses):
         print "need courses"
         return
-    mobile = MobileApi()
+    mobile = MobileApi(args.language)
     email = args.email or raw_input('Email address: ')
     password = getpass.getpass('Password: ')
     mobile.login(email, password)
