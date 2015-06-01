@@ -58,20 +58,24 @@ class MobileApi(object):
 
     def process_video_data(self, json_data):
         for video in json_data:
+            relevant_video_data = {
+                "unit_url": video["unit_url"],
+                "transcript": video["summary"]["transcripts"],
+                }
             video.pop('named_path')
             if video['summary']['video_url']:
                 if video['summary']['size'] == 0:
-                    self.log_and_print("\nMissing size: {}".format(video))
+                    self.log_and_print("\nMissing size: {}".format(relevant_video_data))
             else:
-                self.log_and_print("\nMissing video url: {}".format(video))
+                self.log_and_print("\nMissing video url: {}".format(relevant_video_data))
 
             if video['summary']['transcripts'] == "{}":
-                self.log_and_print("\nMissing transcript url: {}".format(video))
+                self.log_and_print("\nMissing transcript url: {}".format(relevant_video_data))
             else:
                 try:
-                    self.check_transcript_url(video['summary']['transcripts'][self.language], video)
+                    self.check_transcript_url(video['summary']['transcripts'][self.language], relevant_video_data)
                 except KeyError:
-                    self.log_and_print("\nMissing '{}' transcript: {}".format(self.language, video))
+                    self.log_and_print("\nMissing '{}' transcript: {}".format(self.language, relevant_video_data))
 
     def check_transcript_url(self, transcript_url, video):
         response = self.sess.get(transcript_url)
