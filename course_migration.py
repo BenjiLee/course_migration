@@ -529,28 +529,30 @@ class Migrator(object):
         response = self.sess.get(url)
         if response.status_code == 200:
             videos = response.json()
-            profiles = \
-                [video["profile"] for video in videos.get("encoded_videos", [])]
-            if 5 != len(set(profiles)):
-                self.log.error("{}: Only {} unique profiles found for {}".
-                               format(self.course_id, profiles, edx_video_id))
+            profiles = [video["profile"] for video in videos.get("encoded_videos", [])]
+            # no longer need webm
+            if "webm" in profiles:
+                profiles.pop("webm")
+            if 4 != len(set(profiles)):
+                self.log_and_print(
+                    "{}: Only {} unique profiles found for {}".
+                    format(self.course_id, profiles, edx_video_id)
+                )
         elif response.status_code == 403:
-            self.log.error("{}:Permissions error for VAL access for {}".
-                           format(self.course_id, edx_video_id))
-            print "Permissions error for VAL access for {}".format(edx_video_id)
+            self.log_and_print(
+                "{}:Permissions error for VAL access for {}".
+                format(self.course_id, edx_video_id)
+            )
             raise PermissionsError
         elif response.status_code == 404:
-            self.log.error("{}:Cannot find {} in VAL".
+            self.log_and_print("{}:Cannot find {} in VAL".
                            format(self.course_id, edx_video_id))
-            print "Cannot find {} in VAL".format(edx_video_id)
             raise NotFoundError
         else:
-            self.log.error("{}:UnknownError in VAL {} for {}".
-                           format(self.course_id,
-                                  response.status_code,
-                                  edx_video_id))
-            print "UnknownError in VAL {} for {}".\
-                format(response.status_code, edx_video_id)
+            self.log_and_print(
+                "{}:UnknownError in VAL {} for {}".
+                format(self.course_id, response.status_code, edx_video_id)
+            )
             raise UnknownError
 
     def log_youtube_mismatches(self, edx_video_id, youtube_id):
