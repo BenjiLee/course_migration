@@ -503,11 +503,20 @@ class Migrator(object):
             try:
                 self.log_missing_video_profiles(edx_video_id)
             except PermissionsError:
-                pass
-            except UnknownError:
-                pass
+                self.log_and_print(
+                    "{}:Permissions error for VAL access for {}".
+                    format(self.course_id, edx_video_id)
+                )
             except NotFoundError:
-                pass
+                self.log_and_print(
+                    "{}:Cannot find {} in VAL".
+                    format(self.course_id, edx_video_id))
+            except UnknownError as status_code:
+                self.log_and_print(
+                    "{}:UnknownError in VAL {} for {}".
+                    format(self.course_id, status_code, edx_video_id)
+                )
+
 
             video_xml.set('edx_video_id', edx_video_id)
             video_xml = tostring(video_xml)
@@ -539,21 +548,11 @@ class Migrator(object):
                     format(self.course_id, profiles, edx_video_id)
                 )
         elif response.status_code == 403:
-            self.log_and_print(
-                "{}:Permissions error for VAL access for {}".
-                format(self.course_id, edx_video_id)
-            )
             raise PermissionsError
         elif response.status_code == 404:
-            self.log_and_print("{}:Cannot find {} in VAL".
-                           format(self.course_id, edx_video_id))
             raise NotFoundError
         else:
-            self.log_and_print(
-                "{}:UnknownError in VAL {} for {}".
-                format(self.course_id, response.status_code, edx_video_id)
-            )
-            raise UnknownError
+            raise UnknownError(response.status_code)
 
     def log_youtube_mismatches(self, edx_video_id, youtube_id):
         """
