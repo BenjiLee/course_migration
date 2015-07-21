@@ -441,24 +441,6 @@ class Migrator(object):
 
         edx_video_id_found = False
 
-        #Gets edx_video_id by parsing a url
-        for line in video_xml.findall('./source'):
-            source_url = line.get('src')
-            if source_url:
-                edx_video_id = self.parse_edx_video_id_from_url(source_url)
-                source = source_url
-                edx_video_id_found = True
-                break
-        else:
-            if source:
-                edx_video_id = self.parse_edx_video_id_from_url(source)
-                edx_video_id_found = True
-
-        #Assuming edx_video_id is 20, if it is not, discard it.
-        if edx_video_id_found:
-            if len(edx_video_id) != 20 or "." in edx_video_id:
-                edx_video_id_found = False
-
         #Looking for edx_video_id via youtube_id/client_id
         # if self.course_id.startswith(('MITx', 'DelftX', 'LouvainX/Louv1.1x')) \
         if edx_video_id_found is False:
@@ -469,6 +451,27 @@ class Migrator(object):
                     client_id=client_id,
                     youtube_id=youtube_id
                 )
+
+        #Gets edx_video_id by parsing a url
+        if edx_video_id_found is False:
+            for line in video_xml.findall('./source'):
+                source_url = line.get('src')
+                if source_url:
+                    edx_video_id = self.parse_edx_video_id_from_url(source_url)
+                    source = source_url
+                    edx_video_id_found = True
+                    break
+            else:
+                if source:
+                    edx_video_id = self.parse_edx_video_id_from_url(source)
+                    edx_video_id_found = True
+
+        #Assuming edx_video_id is 20, if it is not, discard it.
+        if edx_video_id_found:
+            if len(edx_video_id) != 20 or "." in edx_video_id:
+                edx_video_id_found = False
+
+
 
         #Looking for edx_video_is via source, else report missing
         if edx_video_id_found is False:
