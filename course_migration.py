@@ -543,8 +543,8 @@ class Migrator(object):
             videos = response.json()
             profiles = [video["profile"] for video in videos.get("encoded_videos", [])]
             # no longer need webm
-            if "desktop_webm" in profiles:
-                profiles.pop("desktop_webm")
+            if "webm" in profiles:
+                profiles.pop("webm")
             if 4 != len(set(profiles)):
                 self.log_and_print(
                     "{}: Only {} unique profiles found for {}".
