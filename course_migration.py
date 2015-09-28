@@ -564,7 +564,7 @@ class Migrator(object):
         Currently mismatches will default to saving the studio urls to the
         tarfile.
         """
-        for vid in self.course_videos["result"]:
+        for vid in self.course_videos["results"]:
             if vid['edx_video_id'] == edx_video_id:
                 for enc in vid['encoded_videos']:
                     if enc['profile'] == 'youtube':
@@ -601,7 +601,7 @@ class Migrator(object):
             Boolean, edx_video_id (bool, str): If successful returns True and
              the edx_video_id. Else, returns false, and an empty string.
         """
-        for video in self.course_videos["result"]:
+        for video in self.course_videos["results"]:
             if youtube_id:
                 for enc in video['encoded_videos']:
                     if enc['profile'] == 'youtube' and enc['url'].strip() == youtube_id:
