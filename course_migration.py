@@ -541,14 +541,25 @@ class Migrator(object):
         response = self.sess.get(url)
         if response.status_code == 200:
             videos = response.json()
-            profiles = [video["profile"] for video in videos.get("encoded_videos", [])]
+            profiles = set([video["profile"] for video in videos.get("encoded_videos", [])])
             # no longer need webm
-            if "webm" in profiles:
-                profiles.pop("webm")
-            if 4 != len(set(profiles)):
+            if "desktop_webm" in profiles:
+                profiles.remove("desktop_webm")
+            explicit_formats_we_check_for = [
+                "mobile_high",
+                "mobile_low",
+                "youtube",
+                "desktop_mp4",
+                "audio_mp3",
+            ]
+            missing_profiles = ""
+            for profile in profiles:
+                if profile not in explicit_formats_we_check_for:
+                    missing_profiles += (profile+",")
+            if missing_profiles:
                 self.log_and_print(
-                    "{}: Only {} unique profiles found for {}".
-                    format(self.course_id, profiles, edx_video_id)
+                    "{}: Video with edx_video_id {} is missing these profiles: {}".
+                    format(self.course_id, edx_video_id, missing_profiles)
                 )
         elif response.status_code == 403:
             raise PermissionsError
