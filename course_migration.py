@@ -454,7 +454,6 @@ class Migrator(object):
                     client_id=client_id,
                     youtube_id=youtube_id
                 )
-
         #Gets edx_video_id by parsing a url
         if edx_video_id_found is False:
             for line in video_xml.findall('./source'):
@@ -471,7 +470,7 @@ class Migrator(object):
 
         #Assuming edx_video_id is 20, if it is not, discard it.
         if edx_video_id_found:
-            if len(edx_video_id) != 20 or "." in edx_video_id:
+            if (len(edx_video_id) != 20 and len(edx_video_id) != 36) or "." in edx_video_id:
                 edx_video_id_found = False
 
 
